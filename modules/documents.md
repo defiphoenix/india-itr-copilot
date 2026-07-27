@@ -30,7 +30,7 @@ say it in chat. Run `scripts/unlock_documents.py` on the whole folder before ask
 | 194S rows / exchange report | VDA disposals → Schedule VDA at flat rate, no loss relief |
 | 206C(1G) LRS rows | Foreign *spending* (forex card, remittance) — usually not an asset; confirm nothing opened abroad |
 | SFT "purchase of time deposits" with big gross | Almost always FD rollovers, not new money — explain, don't alarm |
-| No 194S anywhere + no exchange docs | Strong evidence of no crypto sales — confirm with one question, not an interrogation |
+| No 194S anywhere + no exchange docs | WEAK negative signal only — 194S has per-payer thresholds (registry: specified person vs others) below which no TDS appears, and P2P/foreign-exchange trades escape it entirely. If any VDA indicator exists (exchange app, bank transfers to an exchange, prior-year Schedule VDA), ask about exchange and wallet activity |
 | Home-loan certificate | Property exists → occupancy + co-ownership questions |
 | AIS Part A | DOB (drives senior slabs/limits) — never ask for age |
 | Prior return's loss schedule | Brought-forward loss vintages — never ask the user to remember |
