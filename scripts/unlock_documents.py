@@ -47,8 +47,17 @@ def candidate_passwords(filename, pan=None, dob=None, extra=None):
         add(pan.upper())
     if dob:
         add(dob)
-    # tokens mined from the filename: runs of >=4 alphanumerics
+    # filename conventions: the whole stem may BE the password ("19128200399.pdf"),
+    # or it follows "docname - password" — try the stem, its dash-separated
+    # segments verbatim (covers passwords containing dashes/spaces), then tokens
     stem = Path(filename).stem
+    add(stem)
+    add(stem.replace(" ", ""))
+    for seg in re.split(r"\s+-\s+|_", stem):
+        seg = seg.strip()
+        if len(seg) >= 4:
+            add(seg)
+            add(seg.lower())
     for tok in re.findall(r"[A-Za-z0-9]{4,}", stem):
         add(tok)
         add(tok.lower())
@@ -71,6 +80,8 @@ def extract_pdf(path, passwords):
             if reader.is_encrypted:
                 if not reader.decrypt(pwd):
                     continue
+            else:
+                pwd = ""
             text = "\n".join(
                 f"===== PAGE {i + 1} =====\n{(pg.extract_text() or '').strip()}"
                 for i, pg in enumerate(reader.pages)
