@@ -1,0 +1,94 @@
+{
+  "_purpose": "Verified rate/limit/date registry for one assessment year. Scripts and modules read values ONLY from here. If verified_on is >90 days old, or the AY differs from the return being prepared, re-verify every field online (official sources first) and rewrite this file before computing.",
+  "assessment_year": "2026-27",
+  "financial_year": "2025-26",
+  "verified_on": "2026-07-27",
+  "governing_act": "Income-tax Act, 1961 (the Income-tax Act, 2025 renumbering applies from AY 2027-28 — for later AYs verify section numbers under both Acts)",
+
+  "due_dates": {
+    "itr1_itr2_non_audit": "2026-07-31",
+    "itr3_itr4_non_audit": "2026-08-31",
+    "tax_audit_cases": "2026-10-31",
+    "belated_or_revised": "2026-12-31",
+    "sources": ["https://cleartax.in/last-date-to-file-itr", "https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/income-tax-returns"]
+  },
+
+  "new_regime": {
+    "slabs": [[400000, 0.0], [800000, 0.05], [1200000, 0.10], [1600000, 0.15], [2000000, 0.20], [2400000, 0.25], [null, 0.30]],
+    "standard_deduction_salary": 75000,
+    "rebate_87a": {"income_threshold": 1200000, "max_rebate": 60000, "marginal_relief": true, "applies_to_special_rate_income": false},
+    "surviving_deductions": ["80CCD(2) employer NPS", "80CCH Agniveer", "family-pension standard deduction"],
+    "sources": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates", "https://tax2win.in/guide/section-87a"]
+  },
+
+  "old_regime": {
+    "slabs_below_60": [[250000, 0.0], [500000, 0.05], [1000000, 0.20], [null, 0.30]],
+    "slabs_60_to_80": [[300000, 0.0], [500000, 0.05], [1000000, 0.20], [null, 0.30]],
+    "slabs_above_80": [[500000, 0.0], [1000000, 0.20], [null, 0.30]],
+    "standard_deduction_salary": 50000,
+    "rebate_87a": {"income_threshold": 500000, "max_rebate": 12500, "marginal_relief": false},
+    "sources": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+  },
+
+  "surcharge": {
+    "tiers": [[5000000, 0.0], [10000000, 0.10], [20000000, 0.15], [50000000, 0.25], [null, 0.37]],
+    "new_regime_cap": 0.25,
+    "cg_and_dividend_cap": 0.15,
+    "marginal_relief": true,
+    "sources": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+  },
+
+  "cess": 0.04,
+
+  "capital_gains": {
+    "equity_stcg_111a": 0.20,
+    "equity_ltcg_112a": {"rate": 0.125, "exempt_first": 125000, "grandfather_date": "2018-01-31"},
+    "equity_lt_holding_months": 12,
+    "other_assets_ltcg_112": {"rate": 0.125, "indexation": false},
+    "property_gold_lt_holding_months": 24,
+    "debt_mf_post_2023_04_01": "always slab rate regardless of holding",
+    "vda_115bbh": {"rate": 0.30, "loss_setoff": "none, not even VDA-vs-VDA", "tds_194s": 0.01},
+    "sources": ["https://anptaxcorp.com/key-capital-gains-tax-rules-for-fy-2025-26-ay-2026-27/", "https://cleartax.in/s/cryptocurrency-taxation-guide"]
+  },
+
+  "business": {
+    "audit_44ab_turnover": 100000000,
+    "audit_44ab_condition": ">=95% digital receipts AND payments; else 10000000",
+    "audit_professionals_receipts": 5000000,
+    "presumptive_44ad_limit": 30000000,
+    "presumptive_44ad_condition": "<=5% cash receipts; else 20000000",
+    "presumptive_44ada_limit": 7500000,
+    "presumptive_rates": {"44ad_digital": 0.06, "44ad_cash": 0.08, "44ada": 0.50},
+    "sources": ["https://cleartax.in/s/tax-audit-section-44ab", "https://tax2win.in/guide/section-44ad-presumptive-scheme"]
+  },
+
+  "interest_and_fees": {
+    "rate_234abc_per_month": 0.01,
+    "advance_tax_threshold": 10000,
+    "installments": [["06-15", 0.15], ["09-15", 0.45], ["12-15", 0.75], ["03-15", 1.00]],
+    "tolerance_first_two": [0.12, 0.36],
+    "fee_234f": {"above_5l_income": 5000, "upto_5l_income": 1000},
+    "rounding": "Rule 119A: each interest base rounds DOWN to nearest 100; part-months count as full",
+    "sources": ["https://cleartax.in/s/interest-imposed-by-income-tax-department-under-section-234c"]
+  },
+
+  "tds_thresholds_common": {
+    "194a_bank_interest_per_bank": 50000,
+    "194_dividend": 10000,
+    "194s_vda": 50000,
+    "note": "Per-deductor thresholds — aggregate income across banks routinely exceeds them with zero TDS anywhere",
+    "sources": ["verify at incometaxindia.gov.in for the AY"]
+  },
+
+  "deduction_caps_old_regime": {
+    "80c": 150000, "80ccd1b_nps": 50000, "80d_self_below60": 25000, "80d_parents_senior": 50000,
+    "80tta_savings_interest": 10000, "80ttb_seniors": 50000, "24b_self_occupied": 200000,
+    "sources": ["verify at incometaxindia.gov.in for the AY"]
+  },
+
+  "reporting_thresholds": {
+    "schedule_al_total_income": 10000000,
+    "schedule_al_note": "raised from 50L to 1Cr — verify against the current year's notified forms",
+    "agri_income_bars_itr1_itr4": 5000
+  }
+}
