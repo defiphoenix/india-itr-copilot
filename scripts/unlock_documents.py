@@ -11,12 +11,19 @@ Tries a candidate-password list built from:
     as "statement - <password>.pdf")
   - the empty password (some "protected" PDFs open with owner-password only)
 
-Output: <name>_extracted.txt next to each input file (PDF text or sheet dump),
-plus a per-file report of which password worked.
+Output: <name>_extracted.txt inside a protected workspace directory (default:
+<target>/extracted_text/, owner-only permissions where the OS supports it),
+plus a per-file report saying whether a password matched. The password VALUE
+is never printed — extractions contain PAN, DOB, salary and account numbers,
+and so does the terminal scrollback if we echo secrets into it.
 
 Usage:
     python unlock_documents.py <file-or-directory> [--pan ABCPD1234E] [--dob 15061990]
                                [--passwords pw1 pw2 ...] [--no-write]
+                               [--output-dir DIR] [--delete-extracted]
+
+Prefer giving passwords via filenames ("Form16 - <password>.pdf") over chat
+or shell history; everything here runs locally.
 
 Dependencies: pip install pypdf msoffcrypto-tool openpyxl xlrd
 (only what a given file type needs is imported at runtime)
@@ -24,6 +31,7 @@ Dependencies: pip install pypdf msoffcrypto-tool openpyxl xlrd
 
 import argparse
 import io
+import os
 import re
 import sys
 from pathlib import Path
@@ -156,7 +164,15 @@ def extract_excel(path, passwords):
     return None, None
 
 
-def process(path, pan, dob, extra, write=True):
+def write_protected(out_path, text):
+    """Owner-only permissions where the OS supports it (no-op effect on plain
+    Windows ACLs, harmless there)."""
+    fd = os.open(out_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        f.write(text)
+
+
+def process(path, pan, dob, extra, out_dir, write=True):
     path = Path(path)
     passwords = candidate_passwords(path.name, pan, dob, extra)
     suffix = path.suffix.lower()
@@ -170,14 +186,33 @@ def process(path, pan, dob, extra, write=True):
     if text is None:
         print(f"FAIL  {path.name} — no candidate password worked; ask the user for it")
         return
-    label = "(no password)" if pwd == "" else f"(password: {pwd})"
+    # never echo the password value — only whether one was needed
+    label = "(no password)" if pwd == "" else "(password matched)"
     print(f"OK    {path.name} {label}")
     if write:
-        out = path.with_name(path.stem + "_extracted.txt")
-        out.write_text(text, encoding="utf-8")
-        print(f"      -> {out.name}")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            os.chmod(out_dir, 0o700)
+        except OSError:
+            pass
+        out = out_dir / (path.stem + "_extracted.txt")
+        write_protected(out, text)
+        print(f"      -> {out}")
     else:
         print(text)
+
+
+def delete_extracted(out_dir):
+    n = 0
+    if out_dir.is_dir():
+        for f in sorted(out_dir.glob("*_extracted.txt")):
+            f.unlink()
+            n += 1
+        try:
+            out_dir.rmdir()  # only removes it if now empty
+        except OSError:
+            pass
+    print(f"Deleted {n} extraction file(s) from {out_dir}")
 
 
 if __name__ == "__main__":
@@ -185,12 +220,21 @@ if __name__ == "__main__":
     ap.add_argument("target", help="A document file, or a directory to sweep")
     ap.add_argument("--pan", default=None)
     ap.add_argument("--dob", default=None, help="ddmmyyyy")
-    ap.add_argument("--passwords", nargs="*", default=[], help="Known passwords to try first")
+    ap.add_argument("--passwords", nargs="*", default=[], help="Known passwords to try first (prefer filenames over CLI — shell history persists)")
     ap.add_argument("--no-write", action="store_true", help="Print extracted text to stdout instead of files")
+    ap.add_argument("--output-dir", default=None, help="Workspace for extractions (default: <target>/extracted_text)")
+    ap.add_argument("--delete-extracted", action="store_true", help="Delete previously extracted text files and exit")
     args = ap.parse_args()
 
     target = Path(args.target)
+    base_dir = target if target.is_dir() else target.parent
+    out_dir = Path(args.output_dir) if args.output_dir else base_dir / "extracted_text"
+
+    if args.delete_extracted:
+        delete_extracted(out_dir)
+        sys.exit(0)
+
     files = sorted(p for p in target.iterdir() if p.is_file()) if target.is_dir() else [target]
     for f in files:
         if f.suffix.lower() in (".pdf", ".xlsx", ".xls", ".xlsm"):
-            process(f, args.pan, args.dob, args.passwords, write=not args.no_write)
+            process(f, args.pan, args.dob, args.passwords, out_dir, write=not args.no_write)

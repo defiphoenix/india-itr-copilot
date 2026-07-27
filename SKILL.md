@@ -24,13 +24,17 @@ representative filings, and disputed notices go to a CA.
 
 - **Documents before questions.** Most interview answers are already inside the paperwork: 26AS
   reveals every employer and job change; AIS reveals every bank account, dividend, and security
-  sale; the absence of 194S TDS is evidence of no crypto sales. Parse first, then ask only what no
-  document can show. Never ask for a fact you can extract.
+  sale. Absence of a TDS row is only a WEAK negative signal, never proof — 194S has per-payer
+  thresholds below which no TDS appears, so if any VDA indicator exists, ask about exchange and
+  wallet activity. Parse first, then ask only what no document can show. Never ask for a fact you
+  can extract.
 - **Rules from the registry, never from memory.** Every rate, slab, limit, and date comes from
   `rules/AY<year>.json`. If that file is missing, stale, or for a different AY: verify each value
-  online (prefer incometaxindia.gov.in and incometax.gov.in; secondaries need two concordant
-  sources) and write the registry before computing anything. A number used in output that lacks a
-  registry entry with a source URL is a defect.
+  online and write the registry before computing anything. Source priority: (1) Income-tax Act /
+  Finance Act text, (2) CBDT notification/circular/rule, (3) incometax.gov.in or
+  incometaxindia.gov.in FAQ/utility, (4) secondary sites as explanatory material only — never the
+  sole authority for a rate or deadline. A number used in output whose registry entry has no
+  primary source is a defect.
 - **Every rupee traces.** Each figure in the output carries its source document. A figure with no
   source is a flag to raise, not a value to assume. Mismatches between AIS, 26AS, and certificates
   are findings to resolve, not noise.
@@ -55,8 +59,11 @@ in your first substantive reply.
 
 ### Stage 1 — Sweep the documents
 Ask for a single folder of everything they have (offer the checklist in `modules/documents.md`;
-tell them passwords can go in filenames or chat). Then:
+tell them to put passwords in filenames — "Form16 - password.pdf" — not in chat, since the
+script derives them locally and chat transcripts outlive the session). Then:
 `python scripts/unlock_documents.py <folder> --pan <PAN> --dob <ddmmyyyy>`
+Extractions land in `<folder>/extracted_text/` — keep that directory out of any repo or sync, and
+offer `--delete-extracted` cleanup at the end of the engagement.
 Parse every extraction. Build a document inventory table: file → type → period → key totals.
 Only request photos/retyping after programmatic extraction has failed for a specific file.
 
@@ -70,14 +77,18 @@ facts: residency days (if any foreign signal), property occupancy status, co-own
 intent behind anomalies, deduction proofs the documents lack. One batch, not a drip.
 
 ### Stage 3 — Select the form
-First match wins (verify current-year eligibility tweaks via the registry):
+First match wins. House-property and capital-gain allowances change year to year — read the caps
+from the registry's `itr_form_eligibility` block, never from memory:
 1. Any business/professional income — F&O, intraday (speculative), freelance, presumptive → **ITR-3**
-   (or **ITR-4** when presumptive-only and no disqualifier).
-2. Capital gains beyond the small permitted sliver, two+ house properties, foreign assets, director,
-   unlisted shares, non-resident, carried/carry-forward losses → **ITR-2**.
-3. Resident, ≤ ₹50L, salary + one house property + other sources → **ITR-1**.
+   (or **ITR-4** when presumptive-only, house properties within the registry cap, and no
+   disqualifier).
+2. Capital gains beyond the registry-permitted sliver, house properties above the registry cap,
+   foreign assets, director, unlisted shares, non-resident, carried/carry-forward losses → **ITR-2**.
+3. Resident, ≤ ₹50L, salary/pension + house properties within the registry cap (two for AY 2026-27)
+   + permitted other sources + 112A LTCG within the registry cap → **ITR-1**.
 Traps to apply: one intraday trade is business income; holding foreign employer stock (unsold) is
-reportable; a director or unlisted-shareholding bars ITR-1/4 at any income.
+reportable; a director or unlisted-shareholding bars ITR-1/4 at any income; a brought-forward
+house-property loss bars ITR-1/4 even within the property-count cap.
 
 ### Stage 4 — Ledger and reconciliation
 Build `ledger.json` (schema in `modules/documents.md`): one row per figure per source, tagged with
@@ -106,6 +117,10 @@ due date and near-permanently.
 
 ### Stage 7 — Interest and payable
 `python scripts/compute_interest_234.py --tax <liability> --tds <credits> --fy <FY> --pay-date <date>`
+Pass the profile flags the documents established — `--age`, `--non-resident`,
+`--has-business-income`, `--presumptive 44AD|44ADA` — and an `--income-event date:tax` for each
+capital gain/dividend that arose after an instalment date; they change the answer (senior citizens
+without business income owe no 234B/C at all; presumptive filers owe one 15-March instalment).
 If money is owed: state the total, the ₹/month meter while unpaid, and the payment route (e-Pay Tax,
 self-assessment minor head 300; challan CIN goes into the return so it shows zero payable). If
 refund: confirm a pre-validated bank account.

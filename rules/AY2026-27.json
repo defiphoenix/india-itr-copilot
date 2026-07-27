@@ -1,5 +1,6 @@
 {
   "_purpose": "Verified rate/limit/date registry for one assessment year. Scripts and modules read values ONLY from here. If verified_on is >90 days old, or the AY differs from the return being prepared, re-verify every field online (official sources first) and rewrite this file before computing.",
+  "_source_policy": "Priority: (1) Income-tax Act / Finance Act text, (2) CBDT notification/circular/rule, (3) incometax.gov.in or incometaxindia.gov.in portal FAQ/utility, (4) secondary sites as explanatory material only — never the sole authority for a rate or deadline. Each block lists 'primary' (authoritative) and optionally 'explanatory' sources.",
   "assessment_year": "2026-27",
   "financial_year": "2025-26",
   "verified_on": "2026-07-27",
@@ -9,16 +10,36 @@
     "itr1_itr2_non_audit": "2026-07-31",
     "itr3_itr4_non_audit": "2026-08-31",
     "tax_audit_cases": "2026-10-31",
-    "belated_or_revised": "2026-12-31",
-    "sources": ["https://cleartax.in/last-date-to-file-itr", "https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/income-tax-returns"]
+    "belated_return": "2026-12-31",
+    "revised_return_without_234i_fee": "2026-12-31",
+    "revised_return_final": "2027-03-31",
+    "note": "Belated returns (s.139(4)) close 31 Dec 2026. Revised returns (s.139(5)) run to the end of the AY, 31 Mar 2027, but attract a fee under s.234I when filed after 31 Dec 2026 (Finance Act 2026, effective 1 Mar 2026).",
+    "sources": {
+      "primary": ["https://www.indiabudget.gov.in/doc/memo.pdf", "https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/income-tax-returns"],
+      "explanatory": ["https://cleartax.in/last-date-to-file-itr"]
+    }
+  },
+
+  "itr_form_eligibility": {
+    "itr1_max_house_properties": 2,
+    "itr4_max_house_properties": 2,
+    "itr1_itr4_ltcg_112a_max": 125000,
+    "itr1_itr4_income_ceiling": 5000000,
+    "note": "CBDT notification of 30 Mar 2026: ITR-1 and ITR-4 for AY 2026-27 permit up to TWO house properties (any mix of self-occupied/let-out, no brought-forward HP loss). ITR-1 also permits s.112A LTCG up to Rs 1.25L with no carry-forward. All other disqualifiers unchanged (non-resident/RNOR, business income for ITR-1, director, unlisted shares, foreign assets, 194N TDS, deferred ESOP tax, agri income > 5000).",
+    "sources": {
+      "primary": ["https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/ITR1-FAQ", "https://www.incometax.gov.in/iec/foportal/help/individual/return-applicable-1"]
+    }
   },
 
   "new_regime": {
     "slabs": [[400000, 0.0], [800000, 0.05], [1200000, 0.10], [1600000, 0.15], [2000000, 0.20], [2400000, 0.25], [null, 0.30]],
     "standard_deduction_salary": 75000,
-    "rebate_87a": {"income_threshold": 1200000, "max_rebate": 60000, "marginal_relief": true, "applies_to_special_rate_income": false},
+    "rebate_87a": {"income_threshold": 1200000, "max_rebate": 60000, "marginal_relief": true, "eligible_tax_components": ["normal"], "note": "s.115BAC(1A) proviso: rebate applies only to tax on slab-rate income; NO rebate against 111A, 112A, 112, 115BBH or other special-rate tax"},
     "surviving_deductions": ["80CCD(2) employer NPS", "80CCH Agniveer", "family-pension standard deduction"],
-    "sources": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates", "https://tax2win.in/guide/section-87a"]
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/finance-acts.aspx", "https://www.incometax.gov.in/iec/foportal/help/individual/salaried-tax-slabs"],
+      "explanatory": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+    }
   },
 
   "old_regime": {
@@ -26,16 +47,31 @@
     "slabs_60_to_80": [[300000, 0.0], [500000, 0.05], [1000000, 0.20], [null, 0.30]],
     "slabs_above_80": [[500000, 0.0], [1000000, 0.20], [null, 0.30]],
     "standard_deduction_salary": 50000,
-    "rebate_87a": {"income_threshold": 500000, "max_rebate": 12500, "marginal_relief": false},
-    "sources": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+    "rebate_87a": {"income_threshold": 500000, "max_rebate": 12500, "marginal_relief": false, "eligible_tax_components": ["normal", "stcg_111a"], "note": "Old-regime 87A applies to tax on total income INCLUDING s.111A STCG, but s.112A(6) bars it against 112A LTCG tax; conservatively not applied against 115BBH VDA tax either"},
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/income-tax-act.aspx", "https://www.incometaxindia.gov.in/pages/tools/income-tax-calculator.aspx"],
+      "explanatory": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+    }
+  },
+
+  "basic_exemption_adjustment": {
+    "note": "Resident individual/HUF only: unused basic-exemption limit first reduces taxable s.111A STCG and s.112A/112 LTCG (provisos to those sections) before the special rate applies. NOT available to non-residents, and never against s.115BBH VDA income.",
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/income-tax-act.aspx"]
+    }
   },
 
   "surcharge": {
     "tiers": [[5000000, 0.0], [10000000, 0.10], [20000000, 0.15], [50000000, 0.25], [null, 0.37]],
     "new_regime_cap": 0.25,
     "cg_and_dividend_cap": 0.15,
+    "cg_and_dividend_cap_applies_to": ["stcg_111a", "ltcg_112a", "ltcg_112", "dividend"],
+    "enhanced_tier_exclusion": "The 25%/37% tiers apply to the non-CG/dividend component only when total income EXCLUDING 111A/112/112A gains and dividends crosses 2Cr/5Cr; otherwise the whole surcharge is capped at 15%",
     "marginal_relief": true,
-    "sources": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/finance-acts.aspx", "https://www.incometaxindia.gov.in/pages/tools/income-tax-calculator.aspx"],
+      "explanatory": ["https://www.hdfclife.com/insurance-knowledge-centre/tax-saving-insurance/income-tax-slab-rates"]
+    }
   },
 
   "cess": 0.04,
@@ -48,7 +84,10 @@
     "property_gold_lt_holding_months": 24,
     "debt_mf_post_2023_04_01": "always slab rate regardless of holding",
     "vda_115bbh": {"rate": 0.30, "loss_setoff": "none, not even VDA-vs-VDA", "tds_194s": 0.01},
-    "sources": ["https://anptaxcorp.com/key-capital-gains-tax-rules-for-fy-2025-26-ay-2026-27/", "https://cleartax.in/s/cryptocurrency-taxation-guide"]
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/income-tax-act.aspx", "https://www.incometax.gov.in/iec/foportal/help/individual/capital-gains"],
+      "explanatory": ["https://anptaxcorp.com/key-capital-gains-tax-rules-for-fy-2025-26-ay-2026-27/", "https://cleartax.in/s/cryptocurrency-taxation-guide"]
+    }
   },
 
   "business": {
@@ -59,31 +98,58 @@
     "presumptive_44ad_condition": "<=5% cash receipts; else 20000000",
     "presumptive_44ada_limit": 7500000,
     "presumptive_rates": {"44ad_digital": 0.06, "44ad_cash": 0.08, "44ada": 0.50},
-    "sources": ["https://cleartax.in/s/tax-audit-section-44ab", "https://tax2win.in/guide/section-44ad-presumptive-scheme"]
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/income-tax-act.aspx"],
+      "explanatory": ["https://cleartax.in/s/tax-audit-section-44ab", "https://tax2win.in/guide/section-44ad-presumptive-scheme"]
+    }
   },
 
   "interest_and_fees": {
     "rate_234abc_per_month": 0.01,
     "advance_tax_threshold": 10000,
+    "advance_tax_exempt": "Resident individual aged 60+ with no business/professional income is NOT liable to advance tax (s.207(2)) — 234B/234C nil",
     "installments": [["06-15", 0.15], ["09-15", 0.45], ["12-15", 0.75], ["03-15", 1.00]],
+    "installments_presumptive_44ad_44ada": [["03-15", 1.00]],
     "tolerance_first_two": [0.12, 0.36],
+    "deferred_income_relief_234c": "No 234C interest on shortfall attributable to capital gains, dividend, lottery/games winnings, or first-time business income arising AFTER an instalment date, if the tax on it is paid in remaining instalments or by 31 March (proviso to s.234C(1))",
     "fee_234f": {"above_5l_income": 5000, "upto_5l_income": 1000},
+    "fee_234i_revised_after_dec31": "Fee under s.234I on revised returns filed after 31 Dec of the AY-1 year, up to 31 Mar (Finance Act 2026) — amount per the Act; verify before quoting",
     "rounding": "Rule 119A: each interest base rounds DOWN to nearest 100; part-months count as full",
-    "sources": ["https://cleartax.in/s/interest-imposed-by-income-tax-department-under-section-234c"]
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/income-tax-act.aspx", "https://www.indiabudget.gov.in/doc/memo.pdf"],
+      "explanatory": ["https://cleartax.in/s/interest-imposed-by-income-tax-department-under-section-234c"]
+    }
   },
 
   "tds_thresholds_common": {
-    "194a_bank_interest_per_bank": 50000,
+    "194a_bank_interest_non_senior": 50000,
+    "194a_bank_interest_senior": 100000,
     "194_dividend": 10000,
-    "194s_vda": 50000,
-    "note": "Per-deductor thresholds — aggregate income across banks routinely exceeds them with zero TDS anywhere",
-    "sources": ["verify at incometaxindia.gov.in for the AY"]
+    "194s_vda_specified_person": 50000,
+    "194s_vda_others": 10000,
+    "note": "Per-deductor thresholds — aggregate income across banks routinely exceeds them with zero TDS anywhere. Absence of TDS is NEVER evidence of absence of taxable income.",
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/charts%20%20tables/tds%20rates.htm"]
+    }
   },
 
   "deduction_caps_old_regime": {
-    "80c": 150000, "80ccd1b_nps": 50000, "80d_self_below60": 25000, "80d_parents_senior": 50000,
-    "80tta_savings_interest": 10000, "80ttb_seniors": 50000, "24b_self_occupied": 200000,
-    "sources": ["verify at incometaxindia.gov.in for the AY"]
+    "80c": 150000,
+    "80ccd1b_nps": 50000,
+    "80d": {
+      "self_family_below60": 25000,
+      "self_family_senior": 50000,
+      "parents_below60": 25000,
+      "parents_senior": 50000,
+      "preventive_checkup_within_caps": 5000,
+      "senior_medical_expenditure": "allowed within the senior cap only where the senior holds NO health-insurance policy"
+    },
+    "80tta_savings_interest": 10000,
+    "80ttb_seniors": 50000,
+    "24b_self_occupied": 200000,
+    "sources": {
+      "primary": ["https://www.incometaxindia.gov.in/pages/acts/income-tax-act.aspx", "https://www.incometax.gov.in/iec/foportal/help/individual/deductions"]
+    }
   },
 
   "reporting_thresholds": {
